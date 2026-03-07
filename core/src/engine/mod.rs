@@ -5427,8 +5427,17 @@ impl Engine {
                     )
             });
 
-            if has_telex_double && english_dict::is_english_word(&raw_str) {
-                return true; // Telex double + Not in VN dict + IS in EN dict → invalid VN
+            if has_telex_double {
+                // If buffer IS a valid English word, keep it regardless of raw spelling
+                // e.g., "bussiness" → buffer "business" (in dict) → not invalid
+                let buffer_str_lower = self.get_buffer_string().to_lowercase();
+                if english_dict::is_english_word(&buffer_str_lower) {
+                    return false; // Buffer is valid English → keep it
+                }
+                // Raw is English word but buffer isn't → invalid VN (trigger restore)
+                if english_dict::is_english_word(&raw_str) {
+                    return true; // Telex double + Not in VN dict + IS in EN dict → invalid VN
+                }
             }
         }
 
