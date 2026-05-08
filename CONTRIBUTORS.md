@@ -51,6 +51,12 @@ Những người đã tin tưởng và ủng hộ dự án.
       </a>
     </td>
     <td align="center">
+      <a href="https://github.com/tuandev-nv">
+        <img src="https://avatars.githubusercontent.com/u/6220969?u=48487fe420e765906abfdfe681c12c0793594dd9&v=4" width="80" style="border-radius:50%"/><br/>
+        <b>tuandev-nv</b> 🥈
+      </a>
+    </td>
+    <td align="center">
       <a href="https://github.com/nguyenphusi">
         <img src="https://avatars.githubusercontent.com/u/8143167?u=848b8f718b731d5bb73a7b9895f8d8273f99b463&v=4" width="80" style="border-radius:50%"/><br/>
         <b>nguyenphusi</b> 🥈
@@ -68,6 +74,8 @@ Những người đã tin tưởng và ủng hộ dự án.
         <b>thehotbotcannotdiefromlove</b> 🥈
       </a>
     </td>
+  </tr>
+  <tr>
     <td align="center">
       <a href="https://github.com/vienkmt">
         <img src="https://avatars.githubusercontent.com/u/20434534?u=12a0117494ef54992f329b8a943036622d5c0f17&v=4" width="80" style="border-radius:50%"/><br/>
@@ -1054,6 +1062,12 @@ Những người đã báo lỗi, góp ý, và thảo luận giúp định hình
       <a href="https://github.com/apps/chatgpt-codex-connector">
         <img src="https://avatars.githubusercontent.com/in/1144995?v=4" width="50" style="border-radius:50%"/><br/>
         <b>chatgpt-codex-connector[bot]</b>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/tuandev-nv">
+        <img src="https://avatars.githubusercontent.com/u/6220969?u=48487fe420e765906abfdfe681c12c0793594dd9&v=4" width="50" style="border-radius:50%"/><br/>
+        <b>tuandev-nv</b>
       </a>
     </td>
     <td align="center">
