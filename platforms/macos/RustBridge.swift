@@ -759,15 +759,14 @@ class KeyboardHookManager {
         // Session tap mode: intercept at cgSessionEventTap level so that synthetic events
         // injected by remote desktop software (RustDesk, AnyDesk, TeamViewer) are visible.
         // Default (HID tap): highest priority, physical keystrokes only, best for most cases.
-        let tap: CFMachPort?
-        if AppState.shared.sessionTapMode {
-            tap = CGEvent.tapCreate(tap: .cgSessionEventTap, place: .headInsertEventTap,
-                                    options: .defaultTap, eventsOfInterest: mask,
-                                    callback: keyboardCallback, userInfo: nil)
+        let tap: CFMachPort? = if AppState.shared.sessionTapMode {
+            CGEvent.tapCreate(tap: .cgSessionEventTap, place: .headInsertEventTap,
+                              options: .defaultTap, eventsOfInterest: mask,
+                              callback: keyboardCallback, userInfo: nil)
         } else {
-            tap = CGEvent.tapCreate(tap: .cghidEventTap, place: .headInsertEventTap,
-                                    options: .defaultTap, eventsOfInterest: mask,
-                                    callback: keyboardCallback, userInfo: nil)
+            CGEvent.tapCreate(tap: .cghidEventTap, place: .headInsertEventTap,
+                              options: .defaultTap, eventsOfInterest: mask,
+                              callback: keyboardCallback, userInfo: nil)
                 ?? CGEvent.tapCreate(tap: .cgSessionEventTap, place: .headInsertEventTap,
                                      options: .defaultTap, eventsOfInterest: mask,
                                      callback: keyboardCallback, userInfo: nil)
@@ -804,6 +803,9 @@ class KeyboardHookManager {
         if let tap = eventTap { CGEvent.tapEnable(tap: tap, enable: false) }
         if let src = runLoopSource { CFRunLoopRemoveSource(CFRunLoopGetCurrent(), src, .commonModes) }
         if let monitor = mouseMonitor { NSEvent.removeMonitor(monitor) }
+        // Remove notification observers to prevent leak across restart() cycles
+        if let obs = shortcutObserver { NotificationCenter.default.removeObserver(obs); shortcutObserver = nil }
+        if let obs = restoreShortcutObserver { NotificationCenter.default.removeObserver(obs); restoreShortcutObserver = nil }
         eventTap = nil
         runLoopSource = nil
         mouseMonitor = nil
@@ -1493,9 +1495,9 @@ private func detectMethod() -> (InjectionMethod, (UInt32, UInt32, UInt32)) {
     // causing garbled input on the remote. Passthrough lets raw keys reach the remote
     // intact; Vietnamese composition must happen on the remote machine itself.
     let remoteDesktopApps: Set<String> = [
-        "com.carriez.rustdesk",       // RustDesk
-        "com.philandro.anydesk",      // AnyDesk
-        "com.teamviewer.TeamViewer",  // TeamViewer
+        "com.carriez.rustdesk", // RustDesk
+        "com.philandro.anydesk", // AnyDesk
+        "com.teamviewer.TeamViewer", // TeamViewer
     ]
     if remoteDesktopApps.contains(bundleId) {
         return cached(.passthrough, (0, 0, 0), "pass:remote")

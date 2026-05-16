@@ -186,7 +186,7 @@ class AppState: ObservableObject {
 
     /// Use cgSessionEventTap instead of cghidEventTap.
     /// Enables Vietnamese input via remote desktop software (RustDesk, AnyDesk, TeamViewer)
-    /// by intercepting synthetic events injected at session level. Requires app restart to take effect.
+    /// by intercepting synthetic events injected at session level. Applied immediately via restart().
     @Published var sessionTapMode: Bool = false {
         didSet {
             UserDefaults.standard.set(sessionTapMode, forKey: SettingsKey.sessionTapMode)
