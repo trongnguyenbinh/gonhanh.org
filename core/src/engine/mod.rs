@@ -680,6 +680,16 @@ impl Engine {
                 return Result::none();
             }
 
+            // Backspace: pop the last accumulated char so the prefix stays in sync
+            // with the on-screen text. Without this, correcting a typo (e.g.
+            // "#hcn" -> Backspace -> "#hcm") falls through to the unknown-key
+            // branch below which clears the whole prefix, so the shortcut never
+            // matches on the following Space.
+            if key == keys::DELETE {
+                self.shortcut_prefix.pop();
+                return Result::none();
+            }
+
             // Break keys (punctuation): check for immediate shortcuts like "->"
             if keys::is_break_ext(key, shift) {
                 if let Some(ch) = break_key_to_char(key, shift) {
