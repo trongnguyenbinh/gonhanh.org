@@ -103,7 +103,7 @@ Những người đã tin tưởng và ủng hộ dự án.
     </td>
     <td align="center">
       <a href="https://github.com/trananhhh">
-        <img src="https://avatars.githubusercontent.com/u/32959690?u=083cac7a5bd93a6b128bbd21242036b7f6beefc2&v=4" width="50" style="border-radius:50%"/><br/>
+        <img src="https://avatars.githubusercontent.com/u/32959690?u=c43189691a293955317aa2ef13be8948b4eaf5b2&v=4" width="50" style="border-radius:50%"/><br/>
         <b>trananhhh</b> 💜
       </a>
     </td>
@@ -1153,6 +1153,6 @@ Những người đã báo lỗi, góp ý, và thảo luận giúp định hình
 
 ---
 
-*Được cập nhật tự động · Lần cuối: 06/06/2026*
+*Được cập nhật tự động · Lần cuối: 07/06/2026*
 
 </div>
