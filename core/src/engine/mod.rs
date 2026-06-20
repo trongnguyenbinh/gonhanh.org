@@ -981,6 +981,11 @@ impl Engine {
                         // This state is lost on clear() but needed for correct horn placement
                         // Example: "duơ" restored → type "c" → should become "dươc"
                         self.re_detect_pending_u_horn();
+                        // Rebuild last_transform so a repeated modifier key still toggles
+                        // the diacritic off, exactly as it would before the word was
+                        // committed. Example: "sow" → "sơ" → Space → Backspace → "w"
+                        // must revert to "sow", not absorb the "w".
+                        self.re_detect_last_transform();
                         // Mark that buffer was restored - if user types new letter,
                         // clear buffer first (they want fresh word, not append)
                         self.restored_pending_clear = true;
@@ -4465,6 +4470,72 @@ impl Engine {
         }
     }
 
+    /// Reconstruct `last_transform` after a committed word is restored into the
+    /// buffer for further editing.
+    ///
+    /// The toggle/revert logic (`try_tone`, `try_mark`, `try_stroke`) decides
+    /// whether a repeated modifier key reverts a diacritic by inspecting
+    /// `last_transform`. That state is per-keystroke and is dropped when a word is
+    /// committed with Space, so a restored word would otherwise ignore the next
+    /// toggle key — e.g. restored "sơ" + "w" stayed "sơ" instead of reverting to
+    /// "sow". (Tone-mark keys s/f/r/x/j had a separate vowel-at-end revert path and
+    /// were unaffected, so the gap was tone-only.)
+    ///
+    /// We rebuild it from the diacritics on the final buffer character, mapping
+    /// each diacritic back to the modifier key that produces it in the current
+    /// method, so editing a restored word behaves like editing it before commit.
+    fn re_detect_last_transform(&mut self) {
+        use crate::data::chars::{mark, tone};
+
+        self.last_transform = None;
+        let Some(&c) = self.buf.last() else { return };
+        let is_vni = self.method == 1;
+
+        // These arms are the inverse of the forward key maps in input/telex.rs and
+        // input/vni.rs — keep them in sync if a method's bindings ever change.
+        // A tone mark (sắc/huyền/hỏi/ngã/nặng) is the outermost diacritic; when
+        // present it is what a repeated mark key toggles off.
+        if c.mark != mark::NONE {
+            let key = if is_vni {
+                match c.mark {
+                    mark::HUYEN => keys::N2,
+                    mark::HOI => keys::N3,
+                    mark::NGA => keys::N4,
+                    mark::NANG => keys::N5,
+                    _ => keys::N1, // SAC
+                }
+            } else {
+                match c.mark {
+                    mark::HUYEN => keys::F,
+                    mark::HOI => keys::R,
+                    mark::NGA => keys::X,
+                    mark::NANG => keys::J,
+                    _ => keys::S, // SAC
+                }
+            };
+            self.last_transform = Some(Transform::Mark(key, c.mark));
+            return;
+        }
+
+        // Otherwise a vowel tone (circumflex / horn / breve) is the last transform.
+        if c.tone != tone::NONE {
+            let key = if is_vni {
+                match c.tone {
+                    tone::CIRCUMFLEX => keys::N6,
+                    // HORN on 'a' is breve (key 8); on o/u it is horn (key 7).
+                    _ if c.key == keys::A => keys::N8,
+                    _ => keys::N7,
+                }
+            } else {
+                match c.tone {
+                    tone::CIRCUMFLEX => c.key, // a/e/o double themselves: aa→â
+                    _ => keys::W,              // horn & breve both use 'w'
+                }
+            };
+            self.last_transform = Some(Transform::Tone(key, c.tone));
+        }
+    }
+
     /// Clear everything including word history
     /// Used when cursor position changes (mouse click, arrow keys, etc.)
     /// to prevent accidental restore from stale history
@@ -4530,6 +4601,9 @@ impl Engine {
         if !self.buf.is_empty() {
             self.restored_pending_clear = true;
             self.restored_is_ascii = is_ascii;
+            // Rebuild last_transform so a repeated modifier key toggles the
+            // diacritic off, matching pre-commit editing behavior.
+            self.re_detect_last_transform();
         }
     }
 
